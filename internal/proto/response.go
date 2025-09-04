@@ -43,6 +43,9 @@ func WriteResponse(w io.Writer, resp *Response) error {
 	case NullBulkString:
 		return writeNullBulkString(w)
 	case Array:
+		if resp.Data == nil {
+			return writeArray(w, nil)
+		}
 		return writeArray(w, resp.Data.([]any))
 	default:
 		return fmt.Errorf("unknown response type: %d", resp.Type)
