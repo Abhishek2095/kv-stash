@@ -1,6 +1,7 @@
 package obs_test
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -155,7 +156,7 @@ func TestMetrics_Handler(t *testing.T) {
 	}
 
 	// Test that handler serves metrics
-	req := httptest.NewRequest("GET", "/metrics", nil)
+	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
 	w := httptest.NewRecorder()
 
 	handler.ServeHTTP(w, req)
@@ -215,7 +216,7 @@ func TestMetrics_HealthEndpoint(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/health" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("OK"))
+			_, _ = w.Write([]byte("OK"))
 			return
 		}
 
@@ -229,22 +230,24 @@ func TestMetrics_HealthEndpoint(t *testing.T) {
 	defer server.Close()
 
 	// Test health endpoint
-	resp, err := http.Get(server.URL + "/health")
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, server.URL+"/health", nil)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatalf("Failed to request health endpoint: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status 200 for health endpoint, got %d", resp.StatusCode)
 	}
 
 	// Test metrics endpoint
-	resp, err = http.Get(server.URL + "/metrics")
+	req, _ = http.NewRequestWithContext(context.Background(), http.MethodGet, server.URL+"/metrics", nil)
+	resp, err = http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatalf("Failed to request metrics endpoint: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status 200 for metrics endpoint, got %d", resp.StatusCode)
@@ -278,7 +281,7 @@ func TestMetrics_RecordCommandWithDifferentStatuses(t *testing.T) {
 
 	// Verify metrics can be served after recording
 	handler := metrics.Handler()
-	req := httptest.NewRequest("GET", "/metrics", nil)
+	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
 	w := httptest.NewRecorder()
 
 	handler.ServeHTTP(w, req)
@@ -307,7 +310,7 @@ func TestMetrics_ConcurrentAccess(t *testing.T) {
 	// Test concurrent access to metrics
 	done := make(chan bool, 10)
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		go func(id int) {
 			defer func() { done <- true }()
 
@@ -324,13 +327,13 @@ func TestMetrics_ConcurrentAccess(t *testing.T) {
 	}
 
 	// Wait for all goroutines to complete
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		<-done
 	}
 
 	// Verify metrics handler still works after concurrent access
 	handler := metrics.Handler()
-	req := httptest.NewRequest("GET", "/metrics", nil)
+	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
 	w := httptest.NewRecorder()
 
 	handler.ServeHTTP(w, req)

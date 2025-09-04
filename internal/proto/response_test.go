@@ -199,28 +199,7 @@ func TestResponseConstructors(t *testing.T) {
 			}
 
 			if tt.data != nil {
-				// Special handling for slices
-				if expectedSlice, ok := tt.data.([]any); ok {
-					actualSlice, ok := tt.response.Data.([]any)
-					if !ok {
-						t.Errorf("Response data type mismatch")
-						return
-					}
-					if len(actualSlice) != len(expectedSlice) {
-						t.Errorf("Response data slice length = %v, want %v", len(actualSlice), len(expectedSlice))
-						return
-					}
-					for i, v := range expectedSlice {
-						if actualSlice[i] != v {
-							t.Errorf("Response data slice[%d] = %v, want %v", i, actualSlice[i], v)
-						}
-					}
-				} else {
-					// For non-slice types, compare directly
-					if fmt.Sprintf("%v", tt.response.Data) != fmt.Sprintf("%v", tt.data) {
-						t.Errorf("Response data = %v, want %v", tt.response.Data, tt.data)
-					}
-				}
+				validateResponseData(t, tt.response.Data, tt.data)
 			}
 		})
 	}
@@ -281,7 +260,7 @@ func TestBulkStringWithSpecialCharacters(t *testing.T) {
 	}{
 		{"Bulk string with CRLF", "hello\r\nworld"},
 		{"Bulk string with null byte", "hello\x00world"},
-		{"Bulk string with unicode", "hello世界"},
+		{"Bulk string with unicode", "hello\u4e16\u754c"},
 		{"Bulk string with only CRLF", "\r\n"},
 		{"Bulk string with tabs", "hello\tworld"},
 	}
@@ -307,5 +286,30 @@ func TestBulkStringWithSpecialCharacters(t *testing.T) {
 				t.Errorf("WriteResponse() = %q, want %q", result, expected)
 			}
 		})
+	}
+}
+
+func validateResponseData(t *testing.T, actual, expected any) {
+	t.Helper()
+
+	// Special handling for slices
+	if expectedSlice, ok := expected.([]any); ok {
+		actualSlice, ok := actual.([]any)
+		if !ok {
+			t.Errorf("Response data type mismatch")
+			return
+		}
+		if len(actualSlice) != len(expectedSlice) {
+			t.Errorf("Response data slice length = %v, want %v", len(actualSlice), len(expectedSlice))
+			return
+		}
+		for i, v := range expectedSlice {
+			if actualSlice[i] != v {
+				t.Errorf("Response data slice[%d] = %v, want %v", i, actualSlice[i], v)
+			}
+		}
+	} else if fmt.Sprintf("%v", actual) != fmt.Sprintf("%v", expected) {
+		// For non-slice types, compare directly
+		t.Errorf("Response data = %v, want %v", actual, expected)
 	}
 }

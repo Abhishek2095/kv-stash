@@ -188,12 +188,7 @@ func TestParser_ParseBulkString(t *testing.T) {
 			t.Parallel()
 
 			// Create a two-element array command (like "GET key")
-			var commandInput string
-			if tt.wantErr {
-				commandInput = "*2\r\n$3\r\nGET\r\n" + tt.input
-			} else {
-				commandInput = "*2\r\n$3\r\nGET\r\n" + tt.input
-			}
+			commandInput := "*2\r\n$3\r\nGET\r\n" + tt.input
 
 			reader := strings.NewReader(commandInput)
 			parser := proto.NewParser(reader)
@@ -219,24 +214,28 @@ func TestParser_ParseBulkString(t *testing.T) {
 			}
 
 			// For bulk string tests, check the argument content
-			if tt.expected != "" {
-				if len(cmd.Args) == 0 {
-					t.Errorf("ParseCommand() expected args with bulk string content")
-					return
-				}
-				if cmd.Args[0] != tt.expected {
-					t.Errorf("ParseCommand() bulk string = %q, want %q", cmd.Args[0], tt.expected)
-				}
-			} else {
-				// For null bulk string and empty bulk string, expect empty string argument
-				if len(cmd.Args) == 0 {
-					t.Errorf("ParseCommand() expected one argument for bulk string, got none")
-					return
-				}
-				if cmd.Args[0] != "" {
-					t.Errorf("ParseCommand() expected empty string argument, got %q", cmd.Args[0])
-				}
-			}
+			validateBulkStringResult(t, cmd, tt.expected)
 		})
+	}
+}
+
+func validateBulkStringResult(t *testing.T, cmd *proto.Command, expected string) {
+	t.Helper()
+
+	if len(cmd.Args) == 0 {
+		t.Errorf("ParseCommand() expected one argument for bulk string, got none")
+		return
+	}
+
+	if expected != "" {
+		if cmd.Args[0] != expected {
+			t.Errorf("ParseCommand() bulk string = %q, want %q", cmd.Args[0], expected)
+		}
+		return
+	}
+
+	// For null bulk string and empty bulk string, expect empty string argument
+	if cmd.Args[0] != "" {
+		t.Errorf("ParseCommand() expected empty string argument, got %q", cmd.Args[0])
 	}
 }

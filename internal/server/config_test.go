@@ -164,7 +164,7 @@ observability:
   otlp_endpoint: "http://jaeger:14268/api/traces"
 `
 
-	err := os.WriteFile(configFile, []byte(configContent), 0o644)
+	err := os.WriteFile(configFile, []byte(configContent), 0o600)
 	if err != nil {
 		t.Fatalf("Failed to write config file: %v", err)
 	}
@@ -216,7 +216,7 @@ server:
   invalid_yaml: [unclosed bracket
 `
 
-	err := os.WriteFile(configFile, []byte(invalidContent), 0o644)
+	err := os.WriteFile(configFile, []byte(invalidContent), 0o600)
 	if err != nil {
 		t.Fatalf("Failed to write config file: %v", err)
 	}
@@ -242,7 +242,7 @@ func TestValidate(t *testing.T) {
 	}{
 		{
 			name: "Valid config",
-			modify: func(c *server.AppConfig) {
+			modify: func(_ *server.AppConfig) {
 				// Default config should be valid
 			},
 			wantErr: false,
@@ -350,10 +350,8 @@ func TestValidate(t *testing.T) {
 				if !strings.Contains(err.Error(), tt.errString) {
 					t.Errorf("Expected error containing %q, got %q", tt.errString, err.Error())
 				}
-			} else {
-				if err != nil {
-					t.Errorf("Validate() should not have returned error for %s: %v", tt.name, err)
-				}
+			} else if err != nil {
+				t.Errorf("Validate() should not have returned error for %s: %v", tt.name, err)
 			}
 		})
 	}
@@ -374,7 +372,7 @@ limits:
   max_clients: -1  # Invalid: must be > 0
 `
 
-	err := os.WriteFile(configFile, []byte(invalidContent), 0o644)
+	err := os.WriteFile(configFile, []byte(invalidContent), 0o600)
 	if err != nil {
 		t.Fatalf("Failed to write config file: %v", err)
 	}

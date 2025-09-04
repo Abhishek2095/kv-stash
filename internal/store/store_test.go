@@ -236,11 +236,11 @@ func TestStore_ConcurrentOperations(t *testing.T) {
 
 	done := make(chan bool, numGoroutines)
 
-	for i := 0; i < numGoroutines; i++ {
+	for i := range numGoroutines {
 		go func(goroutineID int) {
 			defer func() { done <- true }()
 
-			for j := 0; j < numOpsPerGoroutine; j++ {
+			for j := range numOpsPerGoroutine {
 				key := fmt.Sprintf("key_%d_%d", goroutineID, j)
 				value := fmt.Sprintf("value_%d_%d", goroutineID, j)
 				s.Set(key, value, nil)
@@ -255,7 +255,7 @@ func TestStore_ConcurrentOperations(t *testing.T) {
 	}
 
 	// Wait for all goroutines to complete
-	for i := 0; i < numGoroutines; i++ {
+	for range numGoroutines {
 		<-done
 	}
 

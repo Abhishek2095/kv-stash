@@ -33,6 +33,7 @@ func TestNewLogger(t *testing.T) {
 			logger := obs.NewLogger(tt.debug)
 			if logger == nil {
 				t.Error("NewLogger returned nil")
+				return
 			}
 
 			// Test that logger can be used without panic
@@ -55,12 +56,14 @@ func TestLogger_WithFields(t *testing.T) {
 	enrichedLogger := logger.WithFields("key", "value")
 	if enrichedLogger == nil {
 		t.Error("WithFields returned nil")
+		return
 	}
 
 	// Test multiple fields
 	multiFieldLogger := logger.WithFields("key1", "value1", "key2", "value2")
 	if multiFieldLogger == nil {
 		t.Error("WithFields with multiple fields returned nil")
+		return
 	}
 
 	// Test that the enriched logger can be used
@@ -115,6 +118,7 @@ func TestLogger_WithFieldsChaining(t *testing.T) {
 
 	if chainedLogger == nil {
 		t.Error("Chained WithFields returned nil")
+		return
 	}
 
 	// Test that chained logger works
