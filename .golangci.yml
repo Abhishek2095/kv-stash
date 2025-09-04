@@ -1,59 +1,194 @@
+# Defines the configuration version.
+# The only possible value is "2".
+version: "2"
+
+# Options for analysis running.
 run:
   timeout: 5m
   issues-exit-code: 1
   tests: true
+  modules-download-mode: readonly
+  # Define the Go version limit.
+  go: '1.25'
 
+# Output configuration options.
 output:
-  format: colored-line-number
+  # Use colors and format.
+  text:
+    colors: true
+    print-linter-name: true
+    print-issued-lines: true
+  # Order to use when sorting results.
+  sort-order:
+    - linter
+    - severity
+    - file
+  # Show statistics per linter.
+  show-stats: true
+
+linters:
+  # Enable specific linters.
+  enable:
+    # Enabled by default
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+
+    # Additional useful linters
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - copyloopvar
+    - cyclop
+    - dupl
+    - dupword
+    - durationcheck
+    - errname
+    - errorlint
+    - exhaustive
+    - fatcontext
+    - forbidigo
+    - funlen
+    - gocheckcompilerdirectives
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - goheader
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosmopolitan
+    - grouper
+    - importas
+    - inamedparam
+    - interfacebloat
+    - intrange
+    - ireturn
+    - lll
+    - loggercheck
+    - maintidx
+    - makezero
+    - mirror
+    - misspell
+    - mnd
+    - musttag
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - nlreturn
+    - noctx
+    - nolintlint
+    - nonamedreturns
+    - nosprintfhostport
+    - perfsprint
+    - prealloc
+    - predeclared
+    - promlinter
+    - reassign
+    - revive
+    - rowserrcheck
+    - sloglint
+    - spancheck
+    - sqlclosecheck
+    - tagalign
+    - tagliatelle
+    - testableexamples
+    - testifylint
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - usestdlibvars
+    - varnamelen
+    - wastedassign
+    - whitespace
+    - wsl_v5
+    - zerologlint
+
+  # Disable noisy or overly strict linters
+  disable:
+    - cyclop
+    - exhaustruct
+    - forcetypeassert
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
+    - godot
+    - godox
+    - iface
+    - nlreturn
+    - tagliatelle
+    - testpackage
+    - varnamelen
+    - wrapcheck
+    - wsl_v5
 
 linters-settings:
-  gofmt:
-    simplify: true
-  goimports:
-    local-prefixes: github.com/Abhishek2095/kv-stash
-  govet:
-    check-shadowing: true
   errcheck:
     check-type-assertions: true
     check-blank: true
-  funlen:
-    lines: 80
-    statements: 40
+
   gocyclo:
     min-complexity: 15
+
   goconst:
     min-len: 2
-    min-occurrences: 2
-  misspell:
-    locale: US
+    min-occurrences: 3
+
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - dupImport # https://github.com/go-critic/go-critic/issues/845
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+
+  importas:
+    local-prefixes: github.com/Abhishek2095/kv-stash
+
+  govet:
+    check-shadowing: true
+    enable-all: true
+
   lll:
     line-length: 140
+
+  misspell:
+    locale: US
+
   nakedret:
     max-func-lines: 30
 
-linters:
-  enable:
-    - gofmt
-    - goimports
-    - govet
-    - errcheck
-    - staticcheck
-    - unused
-    - gosimple
-    - structcheck
-    - varcheck
-    - ineffassign
-    - deadcode
-    - typecheck
-    - gosec
-    - gocyclo
-    - goconst
-    - misspell
-    - lll
-    - nakedret
-    - funlen
+  revive:
+    severity: warning
+    rules:
+      - name: exported
+        severity: warning
+        disabled: false
+        arguments:
+          - "checkPrivateReceivers"
+          - "sayRepetitiveInsteadOfStutters"
+
+  staticcheck:
+    checks: ["all"]
 
 issues:
+  # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
     - path: _test\.go
       linters:
@@ -62,5 +197,42 @@ issues:
         - gocyclo
         - errcheck
         - gosec
+        - gocritic
+        - lll
+    - path: cmd/
+      linters:
+        - gocyclo
+        - funlen
+    - source: "//nolint"
+      linters:
+        - nolintlint
+    # Exclude some linters from running on tests files.
+    - path: _test\.go
+      linters:
+        - gocognit
+        - errcheck
+        - dupl
+        - gosec
+
+  # Maximum issues count per one linter. Set to 0 to disable.
   max-issues-per-linter: 0
+
+  # Maximum count of issues with the same text. Set to 0 to disable.
   max-same-issues: 0
+
+  # Show only new issues: if there are unstaged changes or untracked files,
+  # only those changes are analyzed, e.g. for a GitHub PR.
+  new: false
+
+severity:
+  # Set the default severity for issues.
+  default: error
+  # When a list of severity rules are provided, severity information will be added to lint issues.
+  rules:
+    - linters:
+        - dupl
+        - goconst
+      severity: info
+    - linters:
+        - misspell
+      severity: warning

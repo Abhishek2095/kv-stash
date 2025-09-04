@@ -111,7 +111,7 @@ OK
 
 ### Prerequisites
 
-- Go 1.23+
+- Go 1.25+
 - Docker & Docker Compose
 - Make
 
@@ -121,6 +121,12 @@ OK
 # Clone the repository
 git clone https://github.com/Abhishek2095/kv-stash.git
 cd kv-stash
+
+# Install dependencies
+make deps
+
+# Install pre-commit hooks (recommended)
+make install-pre-commit
 
 # Install development tools
 make install-tools
@@ -153,7 +159,8 @@ make test-coverage
 
 We maintain high code quality standards:
 
-- **golangci-lint v2** - 50+ linters for comprehensive code analysis
+- **golangci-lint v2.4.0** - Latest version with 50+ linters for comprehensive code analysis
+- **Pre-commit hooks** - Automated linting, formatting, and testing on commit
 - **100% test coverage** target for critical paths
 - **Benchmark regression** detection in CI
 - **Security scanning** with gosec

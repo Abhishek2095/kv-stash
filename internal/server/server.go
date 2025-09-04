@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Abhishek2095
-// SPDX-License-Identifier: MIT
-
 package server
 
 import (
@@ -18,7 +15,7 @@ import (
 
 // Server represents the main kv-stash server
 type Server struct {
-	config    *Config
+	config    *AppConfig
 	logger    *obs.Logger
 	listener  net.Listener
 	store     *store.Store
@@ -36,7 +33,7 @@ type Server struct {
 }
 
 // New creates a new server instance
-func New(config *Config, logger *obs.Logger) (*Server, error) {
+func New(config *AppConfig, logger *obs.Logger) (*Server, error) {
 	// Create the store
 	storeInstance, err := store.New(&store.Config{
 		Shards:         config.Server.Shards,
@@ -72,7 +69,8 @@ func New(config *Config, logger *obs.Logger) (*Server, error) {
 
 // ListenAndServe starts the server and listens for connections
 func (s *Server) ListenAndServe() error {
-	listener, err := net.Listen("tcp", s.config.Server.ListenAddr)
+	lc := net.ListenConfig{}
+	listener, err := lc.Listen(context.Background(), "tcp", s.config.Server.ListenAddr)
 	if err != nil {
 		return fmt.Errorf("failed to listen on %s: %w", s.config.Server.ListenAddr, err)
 	}
@@ -102,7 +100,7 @@ func (s *Server) ListenAndServe() error {
 		// Check connection limits
 		if atomic.LoadInt64(&s.connCount) >= int64(s.config.Limits.MaxClients) {
 			s.logger.Warn("Connection limit reached, closing new connection")
-			conn.Close()
+			_ = conn.Close()
 			continue
 		}
 
@@ -118,7 +116,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 	defer func() {
 		atomic.AddInt64(&s.connCount, -1)
 		s.metrics.DecConnections()
-		conn.Close()
+		_ = conn.Close()
 	}()
 
 	s.wg.Add(1)
@@ -126,13 +124,13 @@ func (s *Server) handleConnection(conn net.Conn) {
 
 	// Set connection timeouts
 	if s.config.Server.ReadTimeout > 0 {
-		conn.SetReadDeadline(time.Now().Add(s.config.Server.ReadTimeout))
+		_ = conn.SetReadDeadline(time.Now().Add(s.config.Server.ReadTimeout))
 	}
 	if s.config.Server.WriteTimeout > 0 {
-		conn.SetWriteDeadline(time.Now().Add(s.config.Server.WriteTimeout))
+		_ = conn.SetWriteDeadline(time.Now().Add(s.config.Server.WriteTimeout))
 	}
 
-	clientID := fmt.Sprintf("%s", conn.RemoteAddr())
+	clientID := conn.RemoteAddr().String()
 	s.connections.Store(clientID, conn)
 	defer s.connections.Delete(clientID)
 
@@ -141,7 +139,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 
 	// Create RESP parser and handler
 	parser := proto.NewParser(conn)
-	handler := NewHandler(s.store, s.config, logger)
+	handler := NewHandler(s.store, &s.config.Server, logger)
 
 	// Main request loop
 	for {
@@ -153,7 +151,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 
 		// Update read deadline
 		if s.config.Server.ReadTimeout > 0 {
-			conn.SetReadDeadline(time.Now().Add(s.config.Server.ReadTimeout))
+			_ = conn.SetReadDeadline(time.Now().Add(s.config.Server.ReadTimeout))
 		}
 
 		// Parse command
@@ -165,13 +163,13 @@ func (s *Server) handleConnection(conn net.Conn) {
 			}
 			logger.Debug("Parse error", "error", err)
 			// Send error response for protocol errors
-			proto.WriteResponse(conn, proto.NewError("ERR Protocol error: "+err.Error()))
+			_ = proto.WriteResponse(conn, proto.NewError("ERR Protocol error: "+err.Error()))
 			return
 		}
 
 		// Update write deadline
 		if s.config.Server.WriteTimeout > 0 {
-			conn.SetWriteDeadline(time.Now().Add(s.config.Server.WriteTimeout))
+			_ = conn.SetWriteDeadline(time.Now().Add(s.config.Server.WriteTimeout))
 		}
 
 		// Handle command with metrics
@@ -208,7 +206,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 	// Close listener
 	if s.listener != nil {
-		s.listener.Close()
+		_ = s.listener.Close()
 	}
 
 	// Wait for connections to finish or timeout
@@ -224,9 +222,9 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	case <-ctx.Done():
 		s.logger.Warn("Shutdown timeout reached, forcing close")
 		// Force close all connections
-		s.connections.Range(func(key, value any) bool {
+		s.connections.Range(func(_, value any) bool {
 			if conn, ok := value.(net.Conn); ok {
-				conn.Close()
+				_ = conn.Close()
 			}
 			return true
 		})

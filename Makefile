@@ -26,7 +26,7 @@ CMD_PATH=./cmd/kvstash
 # Docker settings
 DOCKER_IMAGE=kvstash
 DOCKER_TAG=latest
-GOLANGCI_LINT_VERSION=v1.57.2
+GOLANGCI_LINT_VERSION=v2.4.0
 
 # Build flags
 LDFLAGS=-ldflags="-s -w"
@@ -148,6 +148,9 @@ deps: ## Download and verify dependencies
 	@echo "Downloading dependencies..."
 	$(GOMOD) download
 	$(GOMOD) verify
+
+install-pre-commit: ## Install pre-commit hooks
+	@./scripts/install-pre-commit.sh
 
 deps-update: ## Update dependencies
 	@echo "Updating dependencies..."

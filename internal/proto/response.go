@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Abhishek2095
-// SPDX-License-Identifier: MIT
-
 package proto
 
 import (
@@ -18,11 +15,17 @@ type Response struct {
 type ResponseType int
 
 const (
+	// SimpleString represents a RESP simple string response type
 	SimpleString ResponseType = iota
+	// Error represents a RESP error response type
 	Error
+	// Integer represents a RESP integer response type
 	Integer
+	// BulkString represents a RESP bulk string response type
 	BulkString
+	// Array represents a RESP array response type
 	Array
+	// NullBulkString represents a RESP null bulk string response type
 	NullBulkString
 )
 
@@ -48,25 +51,25 @@ func WriteResponse(w io.Writer, resp *Response) error {
 
 // writeSimpleString writes a simple string response
 func writeSimpleString(w io.Writer, s string) error {
-	_, err := w.Write([]byte(fmt.Sprintf("+%s\r\n", s)))
+	_, err := fmt.Fprintf(w, "+%s\r\n", s)
 	return err
 }
 
 // writeError writes an error response
 func writeError(w io.Writer, s string) error {
-	_, err := w.Write([]byte(fmt.Sprintf("-%s\r\n", s)))
+	_, err := fmt.Fprintf(w, "-%s\r\n", s)
 	return err
 }
 
 // writeInteger writes an integer response
 func writeInteger(w io.Writer, i int64) error {
-	_, err := w.Write([]byte(fmt.Sprintf(":%d\r\n", i)))
+	_, err := fmt.Fprintf(w, ":%d\r\n", i)
 	return err
 }
 
 // writeBulkString writes a bulk string response
 func writeBulkString(w io.Writer, s string) error {
-	_, err := w.Write([]byte(fmt.Sprintf("$%d\r\n%s\r\n", len(s), s)))
+	_, err := fmt.Fprintf(w, "$%d\r\n%s\r\n", len(s), s)
 	return err
 }
 
@@ -84,7 +87,7 @@ func writeArray(w io.Writer, arr []any) error {
 	}
 
 	// Write array length
-	if _, err := w.Write([]byte(fmt.Sprintf("*%d\r\n", len(arr)))); err != nil {
+	if _, err := fmt.Fprintf(w, "*%d\r\n", len(arr)); err != nil {
 		return err
 	}
 

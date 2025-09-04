@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Abhishek2095
-// SPDX-License-Identifier: MIT
-
 package proto_test
 
 import (
@@ -111,17 +108,18 @@ func TestParser_ParseBulkString(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.name, func(_ *testing.T) {
 			reader := strings.NewReader(tt.input)
 			parser := proto.NewParser(reader)
 
 			// Skip the bulk string header and test the parsing logic
-			if strings.HasPrefix(tt.input, "$0") {
-				parser.ParseCommand() // This will handle the empty case
-			} else if strings.HasPrefix(tt.input, "$-1") {
-				parser.ParseCommand() // This will handle the null case
-			} else if strings.HasPrefix(tt.input, "$5") {
-				parser.ParseCommand() // This will handle the regular case
+			switch {
+			case strings.HasPrefix(tt.input, "$0"):
+				_, _ = parser.ParseCommand() // This will handle the empty case
+			case strings.HasPrefix(tt.input, "$-1"):
+				_, _ = parser.ParseCommand() // This will handle the null case
+			case strings.HasPrefix(tt.input, "$5"):
+				_, _ = parser.ParseCommand() // This will handle the regular case
 			}
 		})
 	}

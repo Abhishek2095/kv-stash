@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Abhishek2095
-// SPDX-License-Identifier: MIT
-
 package server
 
 import (
@@ -11,6 +8,12 @@ import (
 	"github.com/Abhishek2095/kv-stash/internal/obs"
 	"github.com/Abhishek2095/kv-stash/internal/proto"
 	"github.com/Abhishek2095/kv-stash/internal/store"
+)
+
+const (
+	// Command argument count constants
+	minSetArgs   = 2
+	exactTwoArgs = 2
 )
 
 // Handler handles RESP commands
@@ -93,7 +96,7 @@ func (h *Handler) handleEcho(args []string) *proto.Response {
 }
 
 // handleInfo handles the INFO command
-func (h *Handler) handleInfo(args []string) *proto.Response {
+func (h *Handler) handleInfo(_ []string) *proto.Response {
 	info := []string{
 		"# Server",
 		"kv_stash_version:dev",
@@ -128,7 +131,7 @@ func (h *Handler) handleGet(args []string) *proto.Response {
 
 // handleSet handles the SET command
 func (h *Handler) handleSet(args []string) *proto.Response {
-	if len(args) < 2 {
+	if len(args) < minSetArgs {
 		return proto.NewError("ERR wrong number of arguments for 'set' command")
 	}
 
@@ -205,7 +208,7 @@ func (h *Handler) handleExists(args []string) *proto.Response {
 
 // handleExpire handles the EXPIRE command
 func (h *Handler) handleExpire(args []string) *proto.Response {
-	if len(args) != 2 {
+	if len(args) != exactTwoArgs {
 		return proto.NewError("ERR wrong number of arguments for 'expire' command")
 	}
 
@@ -296,7 +299,7 @@ func (h *Handler) handleDecr(args []string) *proto.Response {
 
 // handleIncrBy handles the INCRBY command
 func (h *Handler) handleIncrBy(args []string) *proto.Response {
-	if len(args) != 2 {
+	if len(args) != exactTwoArgs {
 		return proto.NewError("ERR wrong number of arguments for 'incrby' command")
 	}
 
@@ -310,7 +313,7 @@ func (h *Handler) handleIncrBy(args []string) *proto.Response {
 
 // handleDecrBy handles the DECRBY command
 func (h *Handler) handleDecrBy(args []string) *proto.Response {
-	if len(args) != 2 {
+	if len(args) != exactTwoArgs {
 		return proto.NewError("ERR wrong number of arguments for 'decrby' command")
 	}
 

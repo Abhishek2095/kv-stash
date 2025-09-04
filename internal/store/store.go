@@ -1,10 +1,8 @@
-// Copyright (c) 2024 Abhishek2095
-// SPDX-License-Identifier: MIT
-
+// Package store implements the core key-value storage engine with sharding and TTL support.
 package store
 
 import (
-	"fmt"
+	"errors"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -47,14 +45,16 @@ type Value struct {
 type ValueType int
 
 const (
+	// StringType represents a string value type
 	StringType ValueType = iota
+	// IntegerType represents an integer value type
 	IntegerType
 )
 
 // New creates a new store instance
 func New(config *Config, logger *obs.Logger) (*Store, error) {
 	if config.Shards <= 0 {
-		return nil, fmt.Errorf("shards must be greater than 0")
+		return nil, errors.New("shards must be greater than 0")
 	}
 
 	store := &Store{
@@ -64,7 +64,7 @@ func New(config *Config, logger *obs.Logger) (*Store, error) {
 	}
 
 	// Initialize shards
-	for i := 0; i < config.Shards; i++ {
+	for i := range config.Shards {
 		store.shards[i] = &Shard{
 			id:     i,
 			data:   make(map[string]*Value),
@@ -79,7 +79,8 @@ func New(config *Config, logger *obs.Logger) (*Store, error) {
 // getShard returns the shard for a given key
 func (s *Store) getShard(key string) *Shard {
 	hash := fnv1aHash(key)
-	return s.shards[hash%uint32(len(s.shards))]
+	shardCount := uint32(len(s.shards)) // #nosec G115 -- len() result is always non-negative
+	return s.shards[hash%shardCount]
 }
 
 // Get retrieves a value by key
@@ -110,10 +111,11 @@ func (s *Store) Set(key, value string, expiration *time.Duration) {
 	shard.mu.Lock()
 	defer shard.mu.Unlock()
 
+	timestamp := time.Now().UnixNano()
 	val := &Value{
 		Data:    value,
 		Type:    StringType,
-		Version: uint64(time.Now().UnixNano()),
+		Version: uint64(timestamp), // #nosec G115 -- timestamp is always non-negative
 	}
 
 	if expiration != nil {
@@ -224,7 +226,7 @@ func fnv1aHash(key string) uint32 {
 	)
 
 	hash := uint32(fnvBasis)
-	for i := 0; i < len(key); i++ {
+	for i := range len(key) {
 		hash ^= uint32(key[i])
 		hash *= fnvPrime
 	}

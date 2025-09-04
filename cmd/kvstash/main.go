@@ -1,12 +1,12 @@
 // Copyright (c) 2024 Abhishek2095
 // SPDX-License-Identifier: MIT
 
+// Package main implements the kv-stash server executable.
 package main
 
 import (
 	"context"
 	"flag"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -31,13 +31,13 @@ func main() {
 	)
 	flag.Parse()
 
-	if *version {
-		fmt.Printf("kv-stash %s\n", getVersion())
-		os.Exit(0)
-	}
-
 	// Initialize logger
 	logger := obs.NewLogger(*debug)
+
+	if *version {
+		logger.Info("kv-stash version", "version", getVersion())
+		os.Exit(0)
+	}
 	logger.Info("Starting kv-stash server",
 		"version", getVersion(),
 		"config", *configPath,
@@ -90,7 +90,8 @@ func main() {
 	logger.Info("Shutting down server gracefully")
 	if err := srv.Shutdown(ctx); err != nil {
 		logger.Error("Failed to shutdown server gracefully", "error", err)
-		os.Exit(1)
+		cancel()
+		return
 	}
 
 	logger.Info("Server shutdown completed")

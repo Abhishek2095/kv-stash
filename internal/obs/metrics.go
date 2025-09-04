@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Abhishek2095
-// SPDX-License-Identifier: MIT
-
 package obs
 
 import (
@@ -9,6 +6,11 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+const (
+	// Server configuration constants
+	metricsReadHeaderTimeoutSeconds = 10
 )
 
 // Metrics holds all Prometheus metrics
@@ -73,7 +75,7 @@ func NewMetrics() *Metrics {
 		),
 		KeysTotal: prometheus.NewGauge(
 			prometheus.GaugeOpts{
-				Name: "kvstash_keys_total",
+				Name: "kvstash_keys",
 				Help: "Total number of keys in the database",
 			},
 		),
@@ -177,16 +179,17 @@ func (m *Metrics) Handler() http.Handler {
 func (m *Metrics) StartMetricsServer(addr string, logger *Logger) error {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", m.Handler())
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		_, _ = w.Write([]byte("OK"))
 	})
 
 	logger.Info("Starting metrics server", "addr", addr)
 
 	server := &http.Server{
-		Addr:    addr,
-		Handler: mux,
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: metricsReadHeaderTimeoutSeconds * time.Second,
 	}
 
 	return server.ListenAndServe()

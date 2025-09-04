@@ -1,6 +1,6 @@
 module github.com/Abhishek2095/kv-stash
 
-go 1.23.0
+go 1.25
 
 require (
 	github.com/prometheus/client_golang v1.23.1

@@ -1,10 +1,9 @@
-// Copyright (c) 2024 Abhishek2095
-// SPDX-License-Identifier: MIT
-
+// Package proto implements the RESP2 protocol parser and response utilities for Redis-compatible communication.
 package proto
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -37,7 +36,7 @@ func (p *Parser) ParseCommand() (*Command, error) {
 	}
 
 	if len(line) == 0 {
-		return nil, fmt.Errorf("empty command")
+		return nil, errors.New("empty command")
 	}
 
 	switch line[0] {
@@ -71,7 +70,7 @@ func (p *Parser) parseArray(line string) (*Command, error) {
 
 	// Read array elements
 	elements := make([]string, count)
-	for i := 0; i < count; i++ {
+	for i := range count {
 		element, err := p.parseElement()
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse array element %d: %w", i, err)
@@ -97,7 +96,7 @@ func (p *Parser) parseElement() (string, error) {
 	}
 
 	if len(line) == 0 {
-		return "", fmt.Errorf("empty element")
+		return "", errors.New("empty element")
 	}
 
 	switch line[0] {

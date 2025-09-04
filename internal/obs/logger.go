@@ -1,6 +1,4 @@
-// Copyright (c) 2024 Abhishek2095
-// SPDX-License-Identifier: MIT
-
+// Package obs provides observability components including logging and metrics for the kv-stash server.
 package obs
 
 import (
@@ -32,6 +30,6 @@ func NewLogger(debug bool) *Logger {
 // WithFields adds fields to the logger context
 func (l *Logger) WithFields(args ...any) *Logger {
 	return &Logger{
-		Logger: l.Logger.With(args...),
+		Logger: l.With(args...),
 	}
 }

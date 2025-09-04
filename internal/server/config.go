@@ -1,9 +1,8 @@
-// Copyright (c) 2024 Abhishek2095
-// SPDX-License-Identifier: MIT
-
+// Package server provides the core server implementation for the kv-stash Redis-compatible key-value store.
 package server
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -11,9 +10,20 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Config represents the server configuration
-type Config struct {
-	Server        ServerConfig        `yaml:"server"`
+const (
+	// Default server configuration constants
+	defaultShardCount           = 8
+	defaultReadTimeoutSeconds   = 30
+	defaultWriteTimeoutSeconds  = 30
+	defaultMaxClients           = 10000
+	defaultMaxPipeline          = 1024
+	defaultActiveCycleMs        = 50
+	defaultSnapshotIntervalSecs = 300
+)
+
+// AppConfig represents the application configuration
+type AppConfig struct {
+	Server        Config              `yaml:"server"`
 	Limits        LimitsConfig        `yaml:"limits"`
 	Storage       StorageConfig       `yaml:"storage"`
 	TTL           TTLConfig           `yaml:"ttl"`
@@ -22,8 +32,8 @@ type Config struct {
 	Observability ObservabilityConfig `yaml:"observability"`
 }
 
-// ServerConfig contains server-specific settings
-type ServerConfig struct {
+// Config contains server-specific settings
+type Config struct {
 	ListenAddr   string        `yaml:"listen_addr"`
 	Shards       int           `yaml:"shards"`
 	AuthPassword string        `yaml:"auth_password"`
@@ -45,8 +55,8 @@ type StorageConfig struct {
 
 // TTLConfig contains TTL-related settings
 type TTLConfig struct {
-	Strategy      string        `yaml:"strategy"`
-	ActiveCycleMs time.Duration `yaml:"active_cycle_ms"`
+	Strategy    string        `yaml:"strategy"`
+	ActiveCycle time.Duration `yaml:"active_cycle_ms"`
 }
 
 // PersistenceConfig contains persistence settings
@@ -83,31 +93,31 @@ type ObservabilityConfig struct {
 }
 
 // DefaultConfig returns the default configuration
-func DefaultConfig() *Config {
-	return &Config{
-		Server: ServerConfig{
+func DefaultConfig() *AppConfig {
+	return &AppConfig{
+		Server: Config{
 			ListenAddr:   ":6380",
-			Shards:       8,
+			Shards:       defaultShardCount,
 			AuthPassword: "",
-			ReadTimeout:  30 * time.Second,
-			WriteTimeout: 30 * time.Second,
+			ReadTimeout:  defaultReadTimeoutSeconds * time.Second,
+			WriteTimeout: defaultWriteTimeoutSeconds * time.Second,
 		},
 		Limits: LimitsConfig{
-			MaxClients:  10000,
-			MaxPipeline: 1024,
+			MaxClients:  defaultMaxClients,
+			MaxPipeline: defaultMaxPipeline,
 		},
 		Storage: StorageConfig{
 			MaxMemoryBytes: 0, // unlimited
 			EvictionPolicy: "noeviction",
 		},
 		TTL: TTLConfig{
-			Strategy:      "lazy+active",
-			ActiveCycleMs: 50 * time.Millisecond,
+			Strategy:    "lazy+active",
+			ActiveCycle: defaultActiveCycleMs * time.Millisecond,
 		},
 		Persistence: PersistenceConfig{
 			Snapshot: SnapshotConfig{
 				Enabled:         false,
-				IntervalSeconds: 300,
+				IntervalSeconds: defaultSnapshotIntervalSecs,
 				Dir:             "./data",
 			},
 			AOF: AOFConfig{
@@ -129,7 +139,7 @@ func DefaultConfig() *Config {
 }
 
 // LoadConfig loads configuration from a file
-func LoadConfig(path string) (*Config, error) {
+func LoadConfig(path string) (*AppConfig, error) {
 	cfg := DefaultConfig()
 
 	// If config file doesn't exist, return default config
@@ -137,7 +147,7 @@ func LoadConfig(path string) (*Config, error) {
 		return cfg, nil
 	}
 
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) // #nosec G304 -- Path is validated by caller
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
@@ -154,17 +164,17 @@ func LoadConfig(path string) (*Config, error) {
 }
 
 // Validate validates the configuration
-func (c *Config) Validate() error {
+func (c *AppConfig) Validate() error {
 	if c.Server.Shards <= 0 {
-		return fmt.Errorf("server.shards must be greater than 0")
+		return errors.New("server.shards must be greater than 0")
 	}
 
 	if c.Limits.MaxClients <= 0 {
-		return fmt.Errorf("limits.max_clients must be greater than 0")
+		return errors.New("limits.max_clients must be greater than 0")
 	}
 
 	if c.Limits.MaxPipeline <= 0 {
-		return fmt.Errorf("limits.max_pipeline must be greater than 0")
+		return errors.New("limits.max_pipeline must be greater than 0")
 	}
 
 	validEvictionPolicies := map[string]bool{

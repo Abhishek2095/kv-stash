@@ -28,7 +28,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
-          # Use golangci-lint v2 - specify the version
+          # Use golangci-lint v2.4.0 (latest)
           version: v2.4.0
           # Optional: golangci-lint command line arguments.
           args: --timeout=5m --config=.golangci.yml
