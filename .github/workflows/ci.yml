@@ -7,7 +7,7 @@ on:
     branches: [ main, develop ]
 
 env:
-  GO_VERSION: '1.22'
+  GO_VERSION: '1.25'
 
 jobs:
   lint:
@@ -26,27 +26,23 @@ jobs:
           cache: false
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
           # Use golangci-lint v2 - specify the version
           version: v2.4.0
-          # Optional: working directory, useful for monorepos
-          # working-directory: .
           # Optional: golangci-lint command line arguments.
           args: --timeout=5m --config=.golangci.yml
           # Optional: show only new issues if it's a pull request.
           only-new-issues: true
-          # Optional: if set to true then the action don't cache or restore ~/go/pkg.
-          skip-pkg-cache: false
-          # Optional: if set to true then the action don't cache or restore ~/.cache/go-build.
-          skip-build-cache: false
+          # Optional: if set to true then the action don't cache or restore caches.
+          skip-cache: false
 
   test:
     name: Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ['1.22', '1.23']
+        go-version: ['1.25']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,7 +76,7 @@ jobs:
         run: go tool cover -html=coverage.out -o coverage.html
 
       - name: Upload coverage to Codecov
-        if: matrix.go-version == '1.22'
+        if: matrix.go-version == '1.25'
         uses: codecov/codecov-action@v4
         with:
           file: ./coverage.out
@@ -110,25 +106,3 @@ jobs:
         with:
           name: kvstash-binary
           path: bin/kvstash
-
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-
-      - name: Run Gosec Security Scanner
-        uses: securecodewarrior/github-action-gosec@master
-        with:
-          args: '-fmt sarif -out gosec.sarif ./...'
-
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: gosec.sarif

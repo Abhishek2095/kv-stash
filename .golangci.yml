@@ -11,7 +11,7 @@ run:
   build-tags: []
   modules-download-mode: readonly
   allow-parallel-runners: false
-  go: '1.22'
+  go: '1.25'
   concurrency: 4
 
 # Output configuration

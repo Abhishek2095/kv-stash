@@ -111,7 +111,7 @@ OK
 
 ### Prerequisites
 
-- Go 1.22+
+- Go 1.25+
 - Docker & Docker Compose
 - Make
 
@@ -328,7 +328,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 📚 **Documentation**: [Wiki](https://github.com/Abhishek2095/kv-stash/wiki)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/Abhishek2095/kv-stash/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/Abhishek2095/kv-stash/discussions)
-- 📧 **Email**: abhishek@example.com
 
 ---
 
