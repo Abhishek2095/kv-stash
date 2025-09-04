@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  kv-stash:
+    build: .
+    image: kv-stash:latest
+    ports:
+      - "6380:6380"
+      - "9100:9100"
+    volumes:
+      - "./configs/example.yaml:/config.yaml:ro"
+      - "kvstash_data:/data"
+    environment:
+      - LOG_LEVEL=info
+    command: [ "kvstash", "--config", "/config.yaml" ]
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "6380" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Optional: Redis CLI for testing
+  redis-cli:
+    image: redis:7-alpine
+    profiles: [ "tools" ]
+    depends_on:
+      - kv-stash
+    command: [ "redis-cli", "-h", "kv-stash", "-p", "6380" ]
+    stdin_open: true
+    tty: true
+
+volumes:
+  kvstash_data:

@@ -1,0 +1,38 @@
+# Example configuration file for kv-stash
+server:
+  listen_addr: ":6380"
+  shards: 8
+  auth_password: ""  # Set a password for AUTH command
+  read_timeout: 30s
+  write_timeout: 30s
+
+limits:
+  max_clients: 10000
+  max_pipeline: 1024
+
+storage:
+  maxmemory_bytes: 0  # 0 = unlimited, or set to bytes (e.g., 1073741824 for 1GB)
+  eviction_policy: "noeviction"  # noeviction, allkeys-lru, volatile-lru, allkeys-lfu, volatile-lfu
+
+ttl:
+  strategy: "lazy+active"
+  active_cycle_ms: 50ms
+
+persistence:
+  snapshot:
+    enabled: false
+    interval_seconds: 300
+    dir: "./data"
+  aof:
+    enabled: false
+    fsync: "everysec"  # always, everysec, no
+    dir: "./data"
+
+replication:
+  role: "leader"  # leader or follower
+  leader_addr: ""  # required for follower role
+
+observability:
+  log_level: "info"  # debug, info, warn, error
+  prometheus_listen: ":9100"
+  otlp_endpoint: ""  # OpenTelemetry endpoint

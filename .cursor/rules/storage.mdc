@@ -1,0 +1,20 @@
+---
+description: "Rules for the storage engine, sharding, and persistence."
+globs: ["internal/store/**", "internal/persist/**"]
+alwaysApply: false
+---
+
+## Core Storage Engine
+- **Data Structure**: The core store for each shard is a `map[string]ValueRecord`. `ValueRecord` contains metadata like TTL.
+- **Concurrency Model**: The "single writer per shard" model is critical. Each shard runs in its own goroutine and processes commands from a channel. This minimizes the need for locks within the shard's data structures.
+- **Data Access**: Do not access a shard's map directly from another goroutine. Send a command/message to the shard's channel and wait for a response.
+
+## TTL (Time-To-Live)
+- **Expiration**: TTLs are handled via two mechanisms:
+    1.  **Lazy Expiration**: Check and expire a key upon access (`GET`, etc.).
+    2.  **Active Expiration**: A background process periodically scans a sample of keys for expiration.
+- **Data Structures**: TTLs are indexed in a min-heap or timing wheel for efficient scanning.
+
+## Persistence
+- **Snapshots (RDB)**: Follow the copy-on-write or versioned iterator pattern to avoid blocking writers during background saves.
+- **AOF (Append-Only File)**: Log commands sequentially. Pay attention to `fsync` policies (`everysec`, `always`) for durability trade-offs.

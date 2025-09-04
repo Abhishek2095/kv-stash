@@ -1,0 +1,23 @@
+---
+description: "Guidelines and strategy for writing tests."
+globs: ["**/*_test.go"]
+alwaysApply: false
+---
+
+## Testing Strategy
+Refer to section 6 of `@PROJECT_PLAN.md` for the full testing strategy.
+
+## Unit Tests
+- **Coverage**: All new business logic must be covered by unit tests.
+- **Scope**: Keep unit tests focused on a single package or component.
+- **Table-Driven Tests**: Use table-driven tests for testing multiple input/output combinations.
+- **Error Cases**: Test error paths and edge cases thoroughly.
+
+## Integration Tests
+- **Scope**: Test the interaction between different components (e.g., server, store, persistence).
+- **Black-Box Testing**: Use `redis-cli` or a Go Redis client to test the server's RESP2 protocol implementation from an external perspective.
+- **Crash Safety**: Integration tests must include scenarios like `kill -9` during AOF writes to verify recovery.
+
+## Benchmarks
+- **Location**: Add benchmarks (`_test.go` files with `BenchmarkXxx` functions) for performance-critical code paths.
+- **Purpose**: Use benchmarks to track performance regressions and validate optimizations.

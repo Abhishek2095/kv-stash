@@ -1,0 +1,15 @@
+---
+description: "Rules for networking, connection handling, and the RESP2 protocol."
+globs: ["internal/server/**", "internal/proto/**"]
+alwaysApply: false
+---
+
+## Server & Connection Handling
+- **Concurrency**: Each client connection is handled by its own goroutine.
+- **Graceful Shutdown**: The server must support graceful shutdown, allowing existing connections to finish their work.
+- **Resource Management**: Use timeouts (`Read/Write`) and enforce limits on pipeline depth to manage resources and prevent DoS.
+
+## RESP2 Protocol
+- **Implementation**: We are building a custom RESP2 parser and encoder.
+- **Performance**: The parser and encoder must be highly performant and minimize memory allocations. Use buffer pooling (e.g., `sync.Pool`) and pre-sized builders.
+- **Correctness**: The implementation must be compatible with `redis-cli` for the supported command subset. Use the golden test vectors.

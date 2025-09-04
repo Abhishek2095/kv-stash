@@ -1,0 +1,18 @@
+---
+description: "Guidelines for writing and updating project documentation."
+globs: ["*.md", "docs/**"]
+alwaysApply: false
+---
+
+## Definition of Done
+As per section 11 of `@PROJECT_PLAN.md`, every feature is only "done" when it is documented.
+
+## README
+- The main `README.md` should contain a high-level overview, quickstart instructions, and links to more detailed documentation.
+- When adding a new feature, update the `README.md` with a small example or mention if it changes the user-facing behavior.
+
+## Configuration
+- All new configuration options must be documented in `configs/default.yaml` with comments explaining their purpose and possible values.
+
+## Architecture Decisions
+- For significant architectural changes, consider adding a new document to the `docs/adr` (Architectural Decision Record) directory.

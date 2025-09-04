@@ -1,0 +1,21 @@
+---
+description: "Guidelines for writing performant code, focusing on allocations and concurrency."
+alwaysApply: false
+---
+
+## Performance Targets
+- **Goal**: Achieve >= 100k ops/sec on a single node for simple GET/SET operations.
+- **Latency**: p95 < 3ms, p99 < 10ms.
+- Refer to section 7 of `@PROJECT_PLAN.md` for more details.
+
+## Key Principles
+- **Measure, Don't Guess**: Use Go's profiling tools (`pprof`) and benchmarks to identify and validate performance improvements.
+- **Reduce Memory Allocations**:
+    - Use object pools (`sync.Pool`) for frequently allocated objects (e.g., protocol buffers, command structs).
+    - Use `bytes.Buffer` with `Reset` instead of creating new buffers.
+    - Be mindful of slice capacity and pre-allocate where possible.
+- **Concurrency**:
+    - Adhere to the single-writer-per-shard model to avoid lock contention.
+    - Use channels for communication between goroutines.
+    - Avoid unnecessary shared state.
+- **GC Pauses**: Reducing allocations is the primary way to mitigate GC pauses.

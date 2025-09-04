@@ -1,0 +1,19 @@
+---
+description: "General project-wide guidelines for kv-stash. This is the foundational context for all development."
+alwaysApply: true
+---
+
+## Project Context
+This project, `kv-stash`, is a Redis-like in-memory key-value datastore written in Go (1.22+). The primary source of truth for architecture, features, and roadmap is `@PROJECT_PLAN.md`.
+
+## Guiding Principles
+- **Correctness First**: Ensure code is correct before optimizing.
+- **Simplicity**: Favor simple, clear concurrency models (single writer per shard).
+- **Observability**: Every feature must include metrics, logs, and traces.
+- **Incremental Delivery**: Follow the phases outlined in the project plan.
+
+## Code Style & Quality
+- **Formatting**: All Go code MUST be formatted with `gofumpt`.
+- **Linting**: All code must pass `golangci-lint` checks as configured in `.golangci.yml`. Run `make lint` before committing.
+- **Error Handling**: Use standard Go error handling (`if err != nil`). Wrap errors with context where appropriate (e.g., `fmt.Errorf("...: %w", err)`). Do not use panics for recoverable errors.
+- **Dependencies**: Manage dependencies using Go modules. Keep `go.mod` tidy.

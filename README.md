@@ -16,8 +16,8 @@ A high-performance, Redis-compatible in-memory key-value store built in Go with 
 - ✅ **Redis Protocol Compatibility** - RESP2 protocol support for seamless `redis-cli` integration
 - ✅ **Basic Commands** - GET, SET, DEL, EXISTS, MGET, MSET with full Redis semantics
 - ✅ **TTL Support** - EXPIRE, PEXPIRE, TTL, PTTL, PERSIST with efficient expiration
-- ✅ **Numeric Operations** - INCR, DECR, INCRBY, DECRBY, APPEND
-- ✅ **String Operations** - GETRANGE, SETRANGE with optimized string handling
+- ✅ **Numeric Operations** - INCR, DECR, INCRBY, DECRBY with atomic operations
+- ✅ **Batch Operations** - MGET, MSET for efficient multi-key operations
 
 ### Performance & Scalability
 - ⚡ **Sharded Architecture** - Lock-free per-shard design for predictable latency
@@ -111,7 +111,7 @@ OK
 
 ### Prerequisites
 
-- Go 1.25+
+- Go 1.23+
 - Docker & Docker Compose
 - Make
 
@@ -231,7 +231,7 @@ Access monitoring dashboards:
 
 - **Prometheus**: http://localhost:9090
 - **Grafana**: http://localhost:3000 (admin/admin)
-- **Health Check**: http://localhost:6380/health
+- **Health Check**: http://localhost:9100/health
 
 ### Backup & Restore
 
@@ -282,18 +282,20 @@ Current coverage: [![codecov](https://codecov.io/gh/Abhishek2095/kv-stash/branch
 
 See our detailed [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete roadmap.
 
-### Current Status (Phase 2)
-- ✅ Core KV operations (GET, SET, DEL)
-- ✅ TTL support with efficient expiration
-- ✅ RESP2 protocol compatibility
-- ✅ Basic observability (metrics, logs)
-- 🚧 Persistence layer (snapshots + AOF)
+### Current Status (Phase 3 - Partially Complete)
+- ✅ **Phase 0 & 1 Complete** - Full server foundation with RESP2 protocol
+- ✅ **Phase 2 Complete** - Core KV operations (GET, SET, DEL, MGET, MSET, INCR, DECR)
+- ✅ **TTL support** with efficient lazy expiration (EXPIRE, TTL, etc.)
+- ✅ **Prometheus metrics** with comprehensive observability
+- ✅ **Docker & Compose** deployment ready
+- ✅ **Production-grade** error handling and graceful shutdown
+- 🚧 **Phase 4** - Persistence layer (snapshots + AOF) - Next milestone
 
 ### Next Milestones
-- 🔄 **Phase 3** - Enhanced observability and tracing
-- 🔄 **Phase 4** - Persistence and crash recovery
-- 🔄 **Phase 5** - Replication and read replicas
-- 🔄 **Phase 6** - Sentinel and automatic failover
+- ✅ **Phase 3** - Enhanced observability (Prometheus metrics ✅, tracing pending)
+- 🔄 **Phase 4** - Persistence and crash recovery (RDB snapshots, AOF logging)
+- 🔄 **Phase 5** - Replication and read replicas (leader-follower setup)
+- 🔄 **Phase 6** - Sentinel and automatic failover (HA and cluster management)
 
 ## 🤝 Contributing
 

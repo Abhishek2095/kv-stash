@@ -1,0 +1,27 @@
+---
+description: "Rules for implementing observability (metrics, logging, tracing)."
+globs: ["internal/obs/**", "cmd/kvstash/**"]
+alwaysApply: false
+---
+
+## Observability by Default
+As per the project plan, observability is a first-class citizen. All new features should be instrumented. Refer to section 3.4 and 5 of `@PROJECT_PLAN.md`.
+
+## Logging
+- **Library**: Use `zerolog` or `zap` for structured, leveled logging.
+- **Context**: Logs should include request-scoped fields (e.g., `traceID`, `clientID`).
+- **Level**: Use `INFO` for significant events, `DEBUG` for verbose development details, and `ERROR` for failures.
+- **Secrets**: Redact secrets and sensitive user data from logs.
+
+## Metrics
+- **Library**: Use `Prometheus` client library.
+- **Standard Metrics**: For every command, implement:
+    - `kvstash_command_total{cmd="...", status="..."}`: Counter for RPS.
+    - `kvstash_command_duration_seconds{cmd="..."}`: Histogram for latency (p50, p95, p99).
+- **System Metrics**: Expose Go runtime metrics (GC, goroutines) and process metrics.
+- **Dashboard**: Remember that metrics will be visualized in Grafana. Make them easy to query and aggregate.
+
+## Tracing
+- **Library**: Use `OpenTelemetry`.
+- **Spans**: Create spans for the entire request lifecycle: `accept -> parse -> route -> execute -> persist -> replicate`.
+- **Attributes**: Spans must include relevant attributes like `db.system=kvstash`, `cmd.name`, `key.hashslot`.

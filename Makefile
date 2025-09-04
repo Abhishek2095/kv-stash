@@ -26,7 +26,7 @@ CMD_PATH=./cmd/kvstash
 # Docker settings
 DOCKER_IMAGE=kvstash
 DOCKER_TAG=latest
-GOLANGCI_LINT_VERSION=v2.4.0
+GOLANGCI_LINT_VERSION=v1.57.2
 
 # Build flags
 LDFLAGS=-ldflags="-s -w"

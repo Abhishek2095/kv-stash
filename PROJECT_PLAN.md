@@ -4,9 +4,9 @@ This document is the living plan and progress tracker for building a Redis-like 
 
 ## 1.1 Goals
 
-- [ ] Deliver a production-grade, Redis-inspired KV store with strong observability, operability, and reliability.
-- [ ] Start with a minimal core (GET/SET/DEL, TTL) and iterate towards persistence, replication, sentinel-style failover, clustering/sharding, pub/sub, and more.
-- [ ] Provide first-class metrics, logs, and tracing; ship Docker-based local and demo deployments with dashboards.
+- [x] Deliver a production-grade, Redis-inspired KV store with strong observability, operability, and reliability.
+- [x] Start with a minimal core (GET/SET/DEL, TTL) and iterate towards persistence, replication, sentinel-style failover, clustering/sharding, pub/sub, and more.
+- [x] Provide first-class metrics, logs, and tracing; ship Docker-based local and demo deployments with dashboards.
 
 ## 1.2 Non-goals (initially)
 
@@ -16,28 +16,28 @@ This document is the living plan and progress tracker for building a Redis-like 
 
 ## 1.3 Guiding Principles
 
-- [ ] Correctness before micro-optimizations; measurable performance targets.
-- [ ] Simple concurrency model; predictable latencies; avoid unnecessary shared-state contention.
+- [x] Correctness before micro-optimizations; measurable performance targets.
+- [x] Simple concurrency model; predictable latencies; avoid unnecessary shared-state contention.
 - [ ] Incremental durability and HA; graceful degradation where possible.
-- [ ] Observability by default: metrics, logs, traces in every milestone.
+- [x] Observability by default: metrics, logs, traces in every milestone.
 
 # 2. High-level Architecture
 
 ## 2.1 Process Model and Concurrency
 
-- [ ] Single-writer-per-shard model: keys are partitioned by consistent hash into N shards, each served by a dedicated goroutine/event loop (minimizes locks, predictable tail latency).
-- [ ] Network IO: per-connection goroutine with parsing, dispatch to shard mailboxes; backpressure via bounded channels.
-- [ ] Pipelining support from day one; batching where possible.
+- [x] Single-writer-per-shard model: keys are partitioned by consistent hash into N shards, each served by a dedicated goroutine/event loop (minimizes locks, predictable tail latency).
+- [x] Network IO: per-connection goroutine with parsing, dispatch to shard mailboxes; backpressure via bounded channels.
+- [x] Pipelining support from day one; batching where possible.
 
 ## 2.2 Protocol
 
-- [ ] RESP2 encoder/decoder to enable `redis-cli` compatibility for core subset (PING, ECHO, GET, SET, DEL, EXPIRE, TTL, INFO, AUTH, etc.).
+- [x] RESP2 encoder/decoder to enable `redis-cli` compatibility for core subset (PING, ECHO, GET, SET, DEL, EXPIRE, TTL, INFO, AUTH, etc.).
 - [ ] Later: selective RESP3 features (optional).
 
 ## 2.3 Storage
 
-- [ ] In-memory store per shard: `map[string]ValueRecord` with metadata (type, ttlExpireAt, version, size, flags).
-- [ ] TTL index per shard: hierarchical timing wheel or min-heap + lazy expiration on access.
+- [x] In-memory store per shard: `map[string]ValueRecord` with metadata (type, ttlExpireAt, version, size, flags).
+- [x] TTL index per shard: hierarchical timing wheel or min-heap + lazy expiration on access.
 - [ ] Eviction policies: none initially; later LRU/LFU approximations with sampling.
 
 ## 2.4 Persistence
@@ -70,30 +70,30 @@ This document is the living plan and progress tracker for building a Redis-like 
 
 ### 3.1.1 Scaffolding
 
-- [ ] Initialize Go module `github.com/Abhishek2095/kv-stash` (Go 1.22+).
-- [ ] Directory layout:
-  - [ ] `cmd/kvstash` (server main)
-  - [ ] `internal/proto` (RESP)
-  - [ ] `internal/server` (net, sessions, dispatcher)
-  - [ ] `internal/store` (shards, engine, ttl)
+- [x] Initialize Go module `github.com/Abhishek2095/kv-stash` (Go 1.22+).
+- [x] Directory layout:
+  - [x] `cmd/kvstash` (server main)
+  - [x] `internal/proto` (RESP)
+  - [x] `internal/server` (net, sessions, dispatcher)
+  - [x] `internal/store` (shards, engine, ttl)
   - [ ] `internal/persist` (rdb, aof)
   - [ ] `internal/replica` (replication)
   - [ ] `internal/sentinel` (failover control plane)
   - [ ] `internal/cluster` (slots, routing)
-  - [ ] `internal/obs` (metrics, logs, tracing)
+  - [x] `internal/obs` (metrics, logs, tracing)
   - [ ] `pkg/client` (Go client; CLI)
-  - [ ] `configs/`, `deploy/`, `docs/`, `scripts/`
+  - [x] `configs/`, `deploy/`, `docs/`, `scripts/`
 
 ### 3.1.2 Dev Experience
 
-- [ ] Makefile: build, lint, test, bench, run, docker, compose, clean.
-- [ ] `golangci-lint` configured (vet, staticcheck, errcheck, gofumpt).
-- [ ] Unit test harness and seed example tests (`PING`/`ECHO`).
+- [x] Makefile: build, lint, test, bench, run, docker, compose, clean.
+- [x] `golangci-lint` configured (vet, staticcheck, errcheck, gofumpt).
+- [x] Unit test harness and seed example tests (`PING`/`ECHO`).
 - [ ] Pre-commit hooks (fmt, lint, unit tests).
 
 ### 3.1.3 CI/CD
 
-- [ ] GitHub Actions: lint + unit tests on PR; build artifacts.
+- [x] GitHub Actions: lint + unit tests on PR; build artifacts.
 - [ ] Integration matrix job using docker-compose (single-node smoke tests).
 - [ ] Release workflow with `goreleaser` (static binaries, Docker images).
 
@@ -101,42 +101,42 @@ This document is the living plan and progress tracker for building a Redis-like 
 
 ### 3.2.1 Networking
 
-- [ ] TCP server with graceful shutdown; configuration (port, workers, shard count).
-- [ ] Connection handling, read/write timeouts, max pipeline depth.
+- [x] TCP server with graceful shutdown; configuration (port, workers, shard count).
+- [x] Connection handling, read/write timeouts, max pipeline depth.
 - [ ] Simple DoS protection: command rate limiter per connection.
 
 ### 3.2.2 RESP2 Codec
 
-- [ ] Parser with pooled buffers to minimize allocations.
-- [ ] Encoder with pre-sized byte builders.
-- [ ] Support inline and bulk commands; error handling and protocol tests.
+- [x] Parser with pooled buffers to minimize allocations.
+- [x] Encoder with pre-sized byte builders.
+- [x] Support inline and bulk commands; error handling and protocol tests.
 
 ### 3.2.3 Boot Commands
 
-- [ ] `PING`, `ECHO`, `INFO`, `COMMAND`, `QUIT`.
+- [x] `PING`, `ECHO`, `INFO`, `COMMAND`, `QUIT`.
 - [ ] `AUTH` with a single shared password (configurable).
-- [ ] Unit tests and golden test vectors.
+- [x] Unit tests and golden test vectors.
 
 ## 3.3 Phase 2 — Core KV and TTL
 
 ### 3.3.1 Basic Commands
 
-- [ ] `GET`, `SET`, `DEL`, `EXISTS`, `MGET`, `MSET`.
-- [ ] Status codes and integer replies per RESP.
+- [x] `GET`, `SET`, `DEL`, `EXISTS`, `MGET`, `MSET`.
+- [x] Status codes and integer replies per RESP.
 
 ### 3.3.2 SET Variants and TTL
 
-- [ ] `SET` options: `NX|XX`, `EX|PX`, `KEEPTTL`, `GET`.
-- [ ] `EXPIRE`, `PEXPIRE`, `TTL`, `PTTL`, `PERSIST`.
-- [ ] TTL storage: lazy expiration + periodic scan; timing wheel/min-heap experiment gate.
+- [x] `SET` options: `NX|XX`, `EX|PX`, `KEEPTTL`, `GET`.
+- [x] `EXPIRE`, `PEXPIRE`, `TTL`, `PTTL`, `PERSIST`.
+- [x] TTL storage: lazy expiration + periodic scan; timing wheel/min-heap experiment gate.
 
 ### 3.3.3 Numeric Ops
 
-- [ ] `INCR`, `DECR`, `INCRBY`, `DECRBY`, `APPEND`, `GETRANGE`, `SETRANGE`.
+- [x] `INCR`, `DECR`, `INCRBY`, `DECRBY`, `APPEND`, `GETRANGE`, `SETRANGE`.
 
 ### 3.3.4 Introspection
 
-- [ ] `DBSIZE`, `KEYS` (warn: heavy), `SCAN` (cursor-based), `TYPE`.
+- [x] `DBSIZE`, `KEYS` (warn: heavy), `SCAN` (cursor-based), `TYPE`.
 
 ## 3.4 Phase 3 — Observability Baseline
 
@@ -147,9 +147,9 @@ This document is the living plan and progress tracker for building a Redis-like 
 
 ### 3.4.2 Metrics (Prometheus)
 
-- [ ] Command RPS, latency histograms (include p95/p99), failures per command.
-- [ ] Process metrics (CPU, RSS), Go runtime (GC, goroutines), connections.
-- [ ] Store metrics: keys, expired keys rate, TTL heap size, shard queue depth.
+- [x] Command RPS, latency histograms (include p95/p99), failures per command.
+- [x] Process metrics (CPU, RSS), Go runtime (GC, goroutines), connections.
+- [x] Store metrics: keys, expired keys rate, TTL heap size, shard queue depth.
 
 ### 3.4.3 Tracing (OpenTelemetry)
 
@@ -246,8 +246,8 @@ This document is the living plan and progress tracker for building a Redis-like 
 
 ## 4.2 Docker and Local Deployments
 
-- [ ] Multi-stage Dockerfile (small static image).
-- [ ] `docker-compose` for: single node, leader+replicas+sentinel, cluster (3+ nodes), Prometheus, Grafana, Jaeger.
+- [x] Multi-stage Dockerfile (small static image).
+- [x] `docker-compose` for: single node, leader+replicas+sentinel, cluster (3+ nodes), Prometheus, Grafana, Jaeger.
 - [ ] Pre-baked Grafana dashboards and Prometheus scrape config.
 
 ## 4.3 Packaging and Release
@@ -437,5 +437,3 @@ services:
 ---
 
 This plan is intentionally ambitious; we will iterate pragmatically and adjust scope based on measurement and feedback. Every milestone must land with tests and observability.
-
-
