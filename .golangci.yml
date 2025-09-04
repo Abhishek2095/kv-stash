@@ -1,0 +1,479 @@
+# golangci-lint v2 configuration
+# See https://golangci-lint.run/docs/configuration/file/
+version: "2"
+
+# Options for analysis running
+run:
+  timeout: 5m
+  relative-path-mode: gomod
+  issues-exit-code: 1
+  tests: true
+  build-tags: []
+  modules-download-mode: readonly
+  allow-parallel-runners: false
+  go: '1.22'
+  concurrency: 4
+
+# Output configuration
+output:
+  formats:
+    - format: colored-line-number
+      path: stdout
+  print-issued-lines: true
+  print-linter-name: true
+  uniq-by-line: true
+  path-mode: "abs"
+  sort-order:
+    - linter
+    - severity
+    - file
+  show-stats: true
+
+# Linters configuration
+linters:
+  default: standard
+  enable:
+    # Code quality and style
+    - gofmt
+    - gofumpt
+    - goimports
+    - govet
+    - staticcheck
+    - gosimple
+    - ineffassign
+    - unused
+    - errcheck
+    - misspell
+    - unconvert
+    - typecheck
+
+    # Security
+    - gosec
+    - gas
+
+    # Performance
+    - prealloc
+    - bodyclose
+
+    # Error handling
+    - errname
+    - errorlint
+    - err113
+    - errchkjson
+
+    # Code complexity
+    - gocyclo
+    - cyclop
+    - gocognit
+    - funlen
+    - lll
+    - nestif
+
+    # Code patterns
+    - dupl
+    - goconst
+    - gocritic
+    - revive
+    - stylecheck
+    - unparam
+    - nakedret
+    - godot
+    - whitespace
+    - wsl
+    - nlreturn
+
+    # Testing
+    - testpackage
+    - tparallel
+    - paralleltest
+
+    # Concurrency
+    - gorace
+    - contextcheck
+
+    # Documentation
+    - godoc
+    - exportloopref
+
+    # Import organization
+    - gci
+    - depguard
+
+    # Misc
+    - asciicheck
+    - bidichk
+    - durationcheck
+    - makezero
+    - nilerr
+    - nilnil
+    - tenv
+    - wastedassign
+    - containedctx
+    - copyloopvar
+
+  disable:
+    # Disable overly strict linters for initial development
+    - exhaustive
+    - exhaustruct
+    - forbidigo
+    - forcetypeassert
+    - gochecknoglobals
+    - gochecknoinits
+    - gomoddirectives
+    - gomnd
+    - ireturn
+    - maintidx
+    - varnamelen
+    - wrapcheck
+    - noctx
+
+# Formatters configuration
+formatters:
+  gofmt:
+    # Use gofumpt instead for stricter formatting
+    auto-fix: false
+  gofumpt:
+    # Stricter gofmt
+    auto-fix: true
+    extra-rules: true
+  goimports:
+    # Organize imports
+    auto-fix: true
+    local-prefixes: "github.com/Abhishek2095/kv-stash"
+
+# Individual linter settings
+linters-settings:
+  # Error handling
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+    exclude-functions:
+      - (*os.File).Close
+      - (io.Closer).Close
+
+  errorlint:
+    errorf: true
+    asserts: true
+    comparison: true
+
+  # Code complexity
+  gocyclo:
+    min-complexity: 15
+
+  cyclop:
+    max-complexity: 15
+    package-average: 10.0
+    skip-tests: true
+
+  gocognit:
+    min-complexity: 15
+
+  funlen:
+    lines: 80
+    statements: 40
+    ignore-comments: true
+
+  lll:
+    line-length: 120
+    tab-width: 4
+
+  nestif:
+    min-complexity: 4
+
+  # Code quality
+  dupl:
+    threshold: 100
+
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+    numbers: true
+
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - whyNoLint
+      - unnamedResult
+      - hugeParam
+    settings:
+      captLocal:
+        paramsOnly: true
+      elseif:
+        skipBalanced: true
+      underef:
+        skipRecvDeref: true
+
+  revive:
+    severity: warning
+    rules:
+      - name: exported
+        severity: warning
+        disabled: false
+        arguments:
+          - "checkPrivateReceivers"
+          - "sayRepetitiveInsteadOfStutters"
+      - name: package-comments
+        severity: warning
+        disabled: false
+      - name: var-naming
+        severity: warning
+        disabled: false
+        arguments:
+          - ["ID"] # Allow ID instead of Id
+      - name: indent-error-flow
+        severity: warning
+        disabled: false
+      - name: if-return
+        severity: warning
+        disabled: false
+      - name: empty-block
+        severity: warning
+        disabled: false
+      - name: superfluous-else
+        severity: warning
+        disabled: false
+      - name: confusing-naming
+        severity: warning
+        disabled: false
+      - name: get-return
+        severity: warning
+        disabled: false
+      - name: modifies-parameter
+        severity: warning
+        disabled: false
+      - name: confusing-results
+        severity: warning
+        disabled: false
+      - name: deep-exit
+        severity: warning
+        disabled: false
+      - name: unused-parameter
+        severity: warning
+        disabled: false
+      - name: unreachable-code
+        severity: warning
+        disabled: false
+      - name: flag-parameter
+        severity: warning
+        disabled: false
+      - name: unnecessary-stmt
+        severity: warning
+        disabled: false
+      - name: struct-tag
+        severity: warning
+        disabled: false
+      - name: modifies-value-receiver
+        severity: warning
+        disabled: false
+      - name: constant-logical-expr
+        severity: warning
+        disabled: false
+      - name: bool-literal-in-expr
+        severity: warning
+        disabled: false
+      - name: redefines-builtin-id
+        severity: warning
+        disabled: false
+      - name: function-result-limit
+        severity: warning
+        disabled: false
+        arguments: [3]
+      - name: imports-blacklist
+        severity: warning
+        disabled: false
+        arguments:
+          - "crypto/md5"
+          - "crypto/sha1"
+      - name: range-val-in-closure
+        severity: warning
+        disabled: false
+      - name: range-val-address
+        severity: warning
+        disabled: false
+      - name: waitgroup-by-value
+        severity: warning
+        disabled: false
+      - name: atomic
+        severity: warning
+        disabled: false
+      - name: empty-lines
+        severity: warning
+        disabled: false
+      - name: line-length-limit
+        severity: warning
+        disabled: false
+        arguments: [120]
+      - name: call-to-gc
+        severity: warning
+        disabled: false
+      - name: duplicated-imports
+        severity: warning
+        disabled: false
+      - name: import-shadowing
+        severity: warning
+        disabled: false
+      - name: bare-return
+        severity: warning
+        disabled: false
+      - name: unused-receiver
+        severity: warning
+        disabled: false
+      - name: unhandled-error
+        severity: warning
+        disabled: false
+        arguments:
+          - "fmt.Printf"
+          - "fmt.Print"
+          - "fmt.Println"
+
+  stylecheck:
+    checks: ["all", "-ST1003", "-ST1016", "-ST1020", "-ST1021", "-ST1022"]
+
+  # Security
+  gosec:
+    severity: medium
+    confidence: medium
+    excludes:
+      - G104 # Audit errors not checked - we handle this with errcheck
+      - G204 # Subprocess launched with variable - we'll handle this case by case
+    config:
+      global:
+        nosec: true
+        "#nosec": "#nosec"
+        show-ignored: true
+        audit: true
+
+  # Import organization
+  gci:
+    sections:
+      - standard # Standard library
+      - default # Everything else
+      - prefix(github.com/Abhishek2095/kv-stash) # This project
+    skip-generated: true
+    custom-order: true
+
+  depguard:
+    rules:
+      main:
+        deny:
+          - pkg: io/ioutil
+            desc: "use io or os package instead"
+          - pkg: golang.org/x/net/context
+            desc: "use context package instead"
+        files:
+          - "!**/*_test.go"
+      test:
+        files:
+          - "**/*_test.go"
+        allow:
+          - $gostd
+          - github.com/Abhishek2095/kv-stash
+
+  # Testing
+  testpackage:
+    skip-regexp: "(export|internal)_test\\.go"
+
+  tparallel:
+    ignoremissing: true
+
+  # Misc
+  misspell:
+    locale: US
+    ignore-words:
+      - "marshalling"
+      - "unmarshalling"
+
+  nakedret:
+    max-func-lines: 30
+
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: true
+
+  unparam:
+    check-exported: false
+
+  unused:
+    check-exported: false
+
+  whitespace:
+    multi-if: true
+    multi-func: true
+
+# Issues configuration
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 10
+  new: false
+  fix: false
+
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - funlen
+        - gocognit
+        - lll
+
+    # Exclude known linters from generated files
+    - path: ".*\\.pb\\.go"
+      linters:
+        - all
+
+    - path: ".*\\.gen\\.go"
+      linters:
+        - all
+
+    # Exclude some staticcheck messages
+    - linters:
+        - staticcheck
+      text: "SA9003:"
+
+    # Exclude lll issues for long lines with go:generate
+    - linters:
+        - lll
+      source: "^//go:generate "
+
+    # Exclude godot for TODO comments
+    - linters:
+        - godot
+      source: "^\\s*//\\s*TODO"
+
+    # Allow main and init functions to be longer
+    - path: cmd/
+      text: "function .* is too long"
+      linters:
+        - funlen
+
+    # Allow main packages to have init functions
+    - path: cmd/
+      text: "don't use `init` function"
+      linters:
+        - gochecknoinits
+
+# Severity rules
+severity:
+  default: error
+  rules:
+    - linters:
+        - revive
+        - stylecheck
+        - godot
+        - misspell
+      severity: warning
+    - linters:
+        - errcheck
+        - gosec
+        - govet
+        - staticcheck
+      severity: error

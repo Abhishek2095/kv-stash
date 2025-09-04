@@ -1,0 +1,299 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+
+# Build artifacts
+bin/
+dist/
+build/
+out/
+
+# Application specific binaries
+kvstash
+kvstash-*
+kv-stash
+kv-stash-*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+log/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Test coverage files
+coverage.out
+coverage.html
+coverage.xml
+c.out
+profile.out
+*.cover
+
+# Benchmark results
+*.bench
+benchmark.txt
+bench.txt
+
+# Performance profiling files
+*.prof
+*.pprof
+cpu.prof
+mem.prof
+block.prof
+mutex.prof
+trace.out
+
+# Configuration files with secrets
+config.local.yaml
+config.local.yml
+config.local.json
+.env
+.env.local
+.env.*.local
+secrets.yaml
+secrets.yml
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+data/
+dump.rdb
+appendonly.aof
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Node.js (if you have any frontend tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python (if you have any Python tools)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Docker
+.dockerignore
+
+# Kubernetes
+*.kubeconfig
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Local development files
+docker-compose.override.yml
+docker-compose.local.yml
+.local/
+
+# GoReleaser
+dist/
+.goreleaser.yml.bak
+
+# Air (live reload tool)
+.air.toml
+tmp/
+
+# Delve debugger
+__debug_bin
+
+# Dependency directories
+vendor/
+
+# Go module cache
+go.sum.bak
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Visual Studio Code
+.vscode/settings.json.bak
+.vscode/launch.json.bak
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Tags
+TAGS
+tags
+.tags
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archives
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+
+# Local development scripts
+run.sh
+start.sh
+stop.sh
+restart.sh
+
+# Monitoring and observability
+prometheus/data/
+grafana/data/
+jaeger/data/
+loki/data/
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+docs/site/
+
+# Helm charts
+charts/*/charts/
+charts/*/requirements.lock
+
+# Local overrides
+override.yaml
+override.yml
+local.yaml
+local.yml
+
+# Development data
+testdata/
+fixtures/
+sample-data/
+
+# Compiled Object files
+*.o
+*.a
+
+# Packages
+*.deb
+*.rpm
+*.pkg
+
+# Snapcraft
+*.snap
+squashfs-root/
+parts/
+stage/
+prime/
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon
+
+# Windows
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Linux
+*~
+
+# Temporary files created by most text editors and IDEs
+*.swp
+*.swo
+*.tmp
+*~
+.#*
+\#*#
+
+# Core dumps
+core
+core.*
+
+# Files created by Go fuzzing
+fuzz/
+**/testdata/fuzz/
+
+.cursor/
